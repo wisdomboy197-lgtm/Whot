@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html><head><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Naija Whot - Horizontal Like Picture</title>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+*{box-sizing:border-box} body{margin:0;background:#5a3317;color:#fff;font-family:sans-serif;text-align:center;overflow:hidden}
+.wood{background:#7a3f1a;background-image:repeating-linear-gradient(90deg, rgba(0,0,0,0.06) 0 2px, transparent 2px 80px);min-height:100vh}
+.bigBtn{display:block;width:92%;max-width:340px;margin:8px auto;padding:14px;border:none;border-radius:15px;font-weight:bold;font-size:15px;cursor:pointer}
+.yellow{background:#FFD93D}.green{background:#2ecc71;color:#fff}.blue{background:#0984e3;color:#fff}.white{background:#fff}.red{background:#ff6b6b;color:#fff}.purple{background:#a55eea;color:#fff}
+.topBar{background:rgba(0,0,0,0.45);padding:6px 10px;display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.pill{background:#FFD93D;color:#111;padding:5px 10px;border-radius:20px;font-weight:bold;font-size:12px}
+
+/* ===== HORIZONTAL LOCKED - LIKE FIRST PICTURE - NEVER TURN TO VERTICAL ===== */
+.board{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:6px;width:100vw;height:calc(100vh - 150px);min-height:420px;padding:6px;overflow:hidden}
+.playerLeft{flex:0 0 170px;text-align:center;height:100%;display:flex;flex-direction:column;justify-content:center}
+.playerRight{flex:0 0 170px;text-align:center;height:100%;display:flex;flex-direction:column;justify-content:center}
+.playerTop{flex:0 0 120px;text-align:center}
+.playerBottom{flex:0 0 120px;text-align:center}
+.centerBox{flex:1;text-align:center;background:rgba(0,0,0,0.18);border-radius:15px;padding:8px;max-width:320px}
+#myHand{display:flex!important;flex-direction:column!important;gap:5px;align-items:center;justify-content:center;max-height:320px;overflow-y:auto}
+#myHand .card{flex:0 0 auto;width:88px;height:62px}
+.card{width:88px;height:62px;background:#fff;color:#111;border-radius:7px;padding:3px;position:relative;box-shadow:0 3px 6px #000;cursor:pointer;text-align:left;border:1px solid #ddd}
+.card.playable{outline:3px solid #00ff00;transform:scale(1.05)}
+.card.defend{outline:3px solid #ff4757;transform:scale(1.07)}
+.card .num-t{position:absolute;top:1px;right:4px;font-weight:900;font-size:16px}
+.card .num-b{position:absolute;bottom:1px;left:4px;font-weight:900;font-size:16px;transform:rotate(180deg)}
+.card .shape{font-size:28px;text-align:center;line-height:1;margin-top:12px}
+.card .ss{font-size:11px;position:absolute;top:3px;left:4px}
+.card .ssb{font-size:11px;position:absolute;bottom:3px;right:4px;transform:rotate(180deg)}
+.card.centerCard{width:92px;height:110px}
+.card.centerCard .shape{font-size:42px;margin-top:28px}
+.oppSmall{position:relative;width:90px;height:40px;margin:4px auto}
+.oppSmall .miniBack{position:absolute;width:38px;height:28px;background:#9e1b1b;border:1.5px solid #fff;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff}
+.oppSmallTop{position:relative;width:110px;height:30px;margin:2px auto}
+.oppSmallTop .miniBack{position:absolute;width:28px;height:38px;background:#9e1b1b;border:1.5px solid #fff;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff}
+.back{width:62px;height:82px;background:#9e1b1b;border:2px solid #fff;border-radius:7px;position:relative;box-shadow:0 2px 5px #000;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:2px auto}
+.back:before{content:"";position:absolute;inset:4px;border:1px solid rgba(255,255,255,0.6);border-radius:4px}
+.back .flower{font-size:26px;color:#fff}
+.back .whotTxt{position:absolute;left:3px;top:2px;font-family:serif;font-style:italic;color:#fff;font-size:9px}
+.deckBack{width:82px;height:100px;background:#9e1b1b;border:3px solid #fff;border-radius:8px;display:flex;align-items:center;justify-content:center;position:relative;margin:0 auto;cursor:pointer}
+.deckBack.tapMe{outline:4px solid #FFD93D;animation:blink 0.5s infinite}
+@keyframes blink{0%{outline-color:#FFD93D}50%{outline-color:#00ff00}100%{outline-color:#FFD93D}}
+.avatar{width:52px;height:52px;border-radius:50%;border:3px solid #FFD93D;background:#FFD93D;display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;margin:0 auto;position:relative}
+.avatar.turn{border-color:#00ff00;box-shadow:0 0 12px #00ff00}
+.avatar.gettingCard{border-color:#fff;box-shadow:0 0 20px #fff;transform:scale(1.12)}
+.avatar.out{border-color:#ff4757;opacity:0.45}
+.avatar .cnt{position:absolute;bottom:-2px;right:-2px;background:#FFD93D;color:#111;font-weight:900;font-size:12px;border-radius:50%;padding:2px 6px;border:2px solid #fff}
+.nameTag{background:#fff;color:#111;border-radius:10px;padding:1px 6px;font-size:11px;font-weight:bold;display:inline-block;margin-top:2px}
+.nameTag.you{background:#FFD93D}
+.callTxt{font-weight:900;font-size:14px;text-shadow:0 2px 3px #000;line-height:1.2}
+button{padding:8px 11px;border:none;border-radius:20px;font-weight:bold;margin:3px;cursor:pointer;font-size:12px}
+#msg{background:#fff;color:#111;padding:6px;border-radius:10px;margin:5px;font-weight:bold;font-size:12px}
+#defendBar{background:#ff4757;color:#fff;padding:6px;border-radius:10px;margin:5px;font-weight:900;font-size:12px;display:none}
+#whotPick{background:#111;padding:10px;border-radius:12px;margin:8px;display:none;position:relative;z-index:10}
+#outBox{background:#ff4757;color:#fff;padding:12px;border-radius:12px;margin:8px;display:none;position:relative;z-index:20}
+#scoreBox{background:#fff;color:#111;padding:10px;border-radius:12px;margin:8px;display:none;font-size:12px;text-align:left;max-height:260px;overflow-y:auto}
+#tapMarketHint{background:#FFD93D;color:#111;padding:6px;border-radius:8px;font-weight:900;font-size:12px;display:none;margin:5px}
+#voiceBubble{background:#111;color:#FFD93D;padding:8px;border-radius:10px;font-size:14px;font-weight:900;display:none;margin:5px;border:2px solid #FFD93D}
+#shareBar{background:#2ecc71;color:#fff;padding:6px;border-radius:8px;font-weight:900;font-size:12px;display:none;margin:5px}
+#bigCardOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:99;flex-direction:column}
+#bigCardOverlay .bigCard{width:180px;height:240px;background:#fff;color:#111;border-radius:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:60px;box-shadow:0 10px 30px #000}
+#chatBox{background:#fff;color:#111;padding:6px;border-radius:10px;margin:5px;display:none;text-align:left;font-size:12px;max-height:90px;overflow-y:auto}
+#tournamentBox{background:#111;color:#FFD93D;padding:6px;border-radius:10px;margin:5px;font-size:11px;display:none}
+#rotateHint{display:none;background:#FFD93D;color:#111;padding:6px;font-weight:900;font-size:12px}
+/* If phone stand straight, SHOW rotate hint, but DON'T turn board to vertical */
+@media (orientation:portrait){
+  #rotateHint{display:block}
+  .board{height:calc(100vh - 190px)}
+}
+select,input{padding:10px;border-radius:10px;font-weight:bold;border:none}
+input{width:90%;max-width:280px;text-align:center;font-size:16px}
+.tabBtn{padding:10px 14px;border-radius:20px;font-weight:900}
+.tabBtn.active{background:#FFD93D;color:#111}
+</style>
+</head><body class="wood">
+<div id="rotateHint">↔️ TURN PHONE SIDEWAYS LIKE FIRST PICTURE FOR BEST VIEW ↔️</div>
+<div id="bigCardOverlay" onclick="this.style.display='none'"><div class="bigCard" id="bigCardContent">●<br><span style="font-size:28px">PICK 2!</span></div><div style="color:#fff;font-weight:900;margin-top:8px" id="bigCardText">Oz play Pick 2!</div><div style="color:#FFD93D;font-size:12px">Tap to close</div></div>
+<div id="menu" style="padding:16px">
+<h1>🃏 NAIJA WHOT - HORIZONTAL</h1>
+<p style="color:#FFD93D">↔️ Turn phone sideways like first picture • Sharing 0.5s one-by-one</p>
+<div id="dailyBox" style="background:#FFD93D;color:#111;padding:10px;border-radius:12px;max-width:340px;margin:8px auto;font-weight:900;font-size:13px">🎁 Daily Reward: Loading...</div>
+<div id="levelBox" style="background:#111;color:#FFD93D;padding:8px;border-radius:10px;max-width:340px;margin:8px auto;font-size:12px">Level: Beginner | ⭐ Stars: 0 | Wins: 0</div>
+<button class="bigBtn" style="background:#ff9f43" id="voiceBtn" onclick="enableVoice()">🔊 TAP TO ENABLE VOICE - Pidgin!</button>
+<button class="bigBtn" style="background:#0984e3;color:#fff" onclick="testVoice()">🎤 TEST VOICE - "Pick Two! You don enter am!"</button>
+<div id="voiceStatus" style="font-size:12px;color:#FFD93D">Voice: Pidgin voice - Press ENABLE, then TEST.</div>
+<div id="voiceBubbleMenu" style="background:#111;color:#FFD93D;padding:8px;border-radius:10px;display:none;font-weight:900;margin:8px">🔊 Pick Two!</div>
+<input id="myName" placeholder="Your Name e.g. Bullish" value="Bullish"><br>
+<div style="margin:8px">Pick Your Avatar: <span id="avatarPick"></span></div>
+<button class="bigBtn yellow" onclick="startWithMode(1)">▶️ 1 VS 1 - vs Oz</button>
+<button class="bigBtn green" onclick="startWithMode(3)">👥 1 VS 3 - vs Oz, Bia, Chiamaka</button>
+<button class="bigBtn red" onclick="showMulti()">📱 PLAY WITH FRIENDS - Local & Online</button>
+<button class="bigBtn blue" onclick="document.getElementById('settingsBox').style.display='block'">⚙️ SETTINGS</button>
+<button class="bigBtn purple" id="continueBtn" style="display:none" onclick="continueSavedGame()">📱 CONTINUE LAST GAME</button>accesskey
+  <div id="multiBox" style="display:none;background:#fff;color:#111;padding:14px;border-radius:15px;max-width:360px;margin:10px auto;text-align:left">
+<b>📱 PLAY WITH FRIENDS</b><br><br>
+<div style="display:flex;gap:5px;justify-content:center">
+<button class="tabBtn active" id="tabLocal" onclick="switchTab('local')">🏠 LOCAL<br><small>Hotspot / WiFi</small></button>
+<button class="tabBtn" id="tabOnline" onclick="switchTab('online')">🌐 ONLINE<br><small>Different WiFi</small></button>
+</div>
+<div style="font-size:12px;margin:8px 0">Host ON Hotspot for LOCAL, or everybody ON Internet for ONLINE.</div>
+<input id="joinCode" placeholder="Room Code e.g. 4821"><br><br>
+<button class="bigBtn green" onclick="createRoom()">🏠 CREATE ROOM</button>
+<button class="bigBtn yellow" onclick="joinRoom()">🔗 JOIN ROOM</button>
+<div id="roomStatus" style="background:#fff3cd;padding:8px;border-radius:8px;font-size:12px">Not connected yet.</div>
+<div id="playersList" style="font-size:13px;margin-top:8px"></div>
+<button class="bigBtn purple" id="startFriendsBtn" style="display:none" onclick="hostStartFriends()">▶️ START GAME (Host Only)</button>
+</div>
+<div id="settingsBox" style="display:none;background:#fff;color:#111;padding:12px;border-radius:15px;max-width:340px;margin:10px auto;text-align:left">
+<b>⚙️ SETTINGS</b><br><br>
+Sound: <select id="soundSel"><option value="on">🔊 ON</option><option value="off">🔇 OFF</option></select><br><br>
+Voice: <select id="voiceSel"><option value="on" selected>🗣️ PIDGIN VOICE ON</option><option value="off">🔇 VOICE OFF</option></select><br><br>
+Speed: <select id="speedSel"><option value="500" selected>0.5 sec - Fast Sharing</option><option value="1500">1.5 sec - Real Table</option><option value="1200">1.2 sec</option></select><br><br>
+<b>⚡ POWER RULES</b><br><select id="powerSel"><option value="on" selected>✅ ON</option><option value="off">❌ OFF</option></select><br><br>
+<button class="bigBtn yellow" onclick="saveSettings()">✅ SAVE</button>
+</div>
+<div style="background:#fff;color:#111;padding:12px;border-radius:15px;max-width:330px;margin:10px auto;text-align:left;font-size:12px">
+<b>📖 LIKE FIRST PICTURE:</b><br>• ↔️ Turn phone sideways<br>• LEFT = YOU (Bullish) — cards vertical<br>• MIDDLE = MARKET + Center<br>• RIGHT = Oz — cards vertical<br>• ⚡ Sharing 0.5s one-by-one
+</div>
+</div>
+<div id="game" style="display:none">
+<div class="topBar"><div id="roomLabel">Wins: <b id="winsTxt">0</b></div><div class="pill" id="tourn">🏆 0 - 0</div><div class="pill" id="powerPill" style="background:#2ecc71;color:#fff">⚡ POWER ON</div><button class="white" onclick="backToMenu()">⏸️</button></div>
+<div id="tournamentBox"></div>
+<div id="msg">Welcome!</div>
+<div id="voiceBubble">🔊 Pick Two!</div>
+<div id="shareBar">🃏 Sharing...</div>
+<div id="defendBar">⚠️ DEFEND!</div>
+<div id="tapMarketHint">👆 TAP MARKET TO PICK</div>
+<div id="scoreBox"></div>
+<div id="chatBox"></div>
+<div style="display:flex;justify-content:center;gap:4px;flex-wrap:wrap">
+<button onclick="sendChat('😂 You go pick 2!')">😂 Pick 2!</button>
+<button onclick="sendChat('🔥 I need Whot!')">🔥 Whot!</button>
+<button onclick="sendChat('😭 Noooo!')">😭 Nooo!</button>
+<button onclick="sendChat('👏 Nice play!')">👏 Nice!</button>
+<button onclick="sendChat('😎 I go win!')">😎 I go win!</button>
+</div>
+<div id="outBox"><b>😢 YOU ARE OUT!</b><br><span id="outReason">Highest points</span><br><br><button class="white" onclick="watchAsSpectator()">👀 WATCH</button><button class="yellow" onclick="restartGame()">🔄 START NEW GAME</button></div>
+<div style="font-size:11px">Round <b id="roundTxt">1</b> | Mode: <b id="modeTxt">1vs3</b> | <span id="turnTxt2">Your turn</span> | <span id="connBadge">Offline</span> | Market: <b id="marketTxt">54</b> | Alive: <b id="aliveTxt">4</b></div>
+<!-- HORIZONTAL BOARD LIKE FIRST PICTURE -->
+<div class="board">
+<!-- LEFT = YOU like picture -->
+<div class="playerLeft" id="pLeft"><div style="display:flex;align-items:center;gap:6px;justify-content:center"><div class="avatar" id="avLeft"><span id="avLeftEmoji">🧑🏾</span><span class="cnt" id="cntLeft">6</span></div><div><div class="nameTag you" id="nameLeft">YOU</div><div style="font-size:11px">Bullish</div></div></div><div id="myHand"></div></div>
+<!-- MIDDLE = MARKET + CENTER -->
+<div class="centerBox">
+<div style="display:flex;gap:8px;justify-content:center;align-items:center"><div><div class="deckBack" id="deckBackEl" onclick="drawCard()"><span style="color:#fff;font-weight:900">Whot<br>MARKET<br><span id="deckCount">54</span></span></div></div><div id="centerCard"></div></div>
+<div class="callTxt" id="callTxt">Your turn</div>
+<div style="font-size:11px">Last: <span id="lastPlay">—</span> | Spot: <span id="spotCount">0</span></div>
+<div><button class="yellow" onclick="drawCard()">🎴 PICK / TAKE</button><button class="green" onclick="sayWhot()">📢 I NEED WHOT!</button></div>
+<button class="white" onclick="restartGame()">🔄 RESTART</button>
+<!-- TOP / BOTTOM players for 1vs3 - small, inside center column to keep horizontal -->
+<div style="display:flex;gap:10px;justify-content:center;margin-top:6px">
+<div class="playerTop" id="pTop"><div class="avatar" id="avTop"><span id="avTopEmoji">🧑🏾‍🦱</span><span class="cnt" id="cntTop">6</span></div><div class="nameTag" id="nameTop">Chiamaka</div><div id="handTop"></div></div>
+<div class="playerBottom" id="pBottom"><div class="avatar" id="avBottom"><span id="avBottomEmoji">👩🏾</span><span class="cnt" id="cntBottom">6</span></div><div class="nameTag" id="nameBottom">Bia</div><div id="handBottom"></div></div>
+</div>
+</div>
+<!-- RIGHT = Oz like picture -->
+<div class="playerRight" id="pRight"><div style="display:flex;align-items:center;gap:6px;justify-content:center"><div class="avatar" id="avRight"><span id="avRightEmoji">🧑🏾‍🦰</span><span class="cnt" id="cntRight">6</span></div><div class="nameTag" id="nameRight">Oz</div></div><div id="handRight"></div></div>
+</div>
+<div id="whotPick"><b>🌟 WHOT! What do you NEED?</b><br><button onclick="chooseShape('circle')">● Circle</button><button onclick="chooseShape('triangle')">▲ Triangle</button><button onclick="chooseShape('square')">■ Square</button><button onclick="chooseShape('star')">★ Star</button><button onclick="chooseShape('cross')">✚ Cross</button></div>
+</div>
+<script>
+let shapes={circle:'●',triangle:'▲',square:'■',star:'★',cross:'✚'};
+let colors={circle:'#a8231a',triangle:'#1a3aa8',square:'#1a7a2a',star:'#a8231a',cross:'#a8231a'};
+let deck=[],my=[],cpus=[],center=null,callShape=null,pendingWhot=false,round=1,youWins=0,cpuWins=[0,0,0],sharing=false,saidWhot=false,mode=3,currentPlayer=0,soundOn=true,shareSpeed=500,voiceOn=true,voiceUnlocked=false;
+let powerRules=true,pendingPick=0,pendingPickType=0,AC=null;
+let discardPile=[], eliminated=[], isSpectator=false, playerPoints=0, totalWinsRecord={you:0,cpu:0};
+let cpuNames=['Oz','Bia','Chiamaka','Tobi'];
+let myAvatar='🧑🏾';
+let cpuAvatars=['🧑🏾‍🦰','👩🏾','🧑🏾‍🦱','🧑🏾'];
+let stars=0, totalWins=0;
+let tournamentWins={you:0,Oz:0,Bia:0,Chiamaka:0};
+let tournamentTarget=3;
+function getLevel(){ if(totalWins>=10) return '👑 Whot Master'; if(totalWins>=5) return '🔥 Pro'; if(totalWins>=3) return '⭐ Rising Star'; if(totalWins>=1) return '🎯 Player'; return '🌱 Beginner'; }
+function updateLevelBox(){ let el=document.getElementById('levelBox'); if(el) el.innerText=`Level: ${getLevel()} | ⭐ Stars: ${stars} | Wins: ${totalWins}`; let tourn=document.getElementById('tournamentBox'); if(tourn){ tourn.style.display='block'; tourn.innerHTML=`🏆 TOURNAMENT - First to ${tournamentTarget} wins = Champion! | YOU: ${tournamentWins.you} | Oz: ${tournamentWins.Oz} | Bia: ${tournamentWins.Bia} | Chiamaka: ${tournamentWins.Chiamaka}`; } }
+function claimDaily(){ let today=new Date().toDateString(); let saved=localStorage.getItem('whot_daily'); if(saved!=today){ stars+=10; localStorage.setItem('whot_daily',today); localStorage.setItem('whot_stars',stars); document.getElementById('dailyBox').innerText='🎁 Daily Reward Claimed! +10 Stars!'; } else { document.getElementById('dailyBox').innerText='🎁 Daily Reward already claimed today.'; } updateLevelBox(); }
+function loadProgress(){ try{ stars=parseInt(localStorage.getItem('whot_stars')||'0'); totalWins=parseInt(localStorage.getItem('whot_wins')||'0'); let tw=localStorage.getItem('whot_tournament'); if(tw) tournamentWins=JSON.parse(tw); let saved=localStorage.getItem('whot_save'); if(saved){ document.getElementById('continueBtn').style.display='block'; } let av=localStorage.getItem('whot_avatar'); if(av) myAvatar=av; }catch(e){} renderAvatarPick(); updateLevelBox(); claimDaily(); }
+function renderAvatarPick(){ let opts=['🧑🏾','👩🏾','👨🏾‍🦱','👩🏾‍🦱','🦁','🐯','👑','😎']; let h=''; opts.forEach(o=>{ h+=`<button onclick="pickAvatar('${o}')" style="font-size:20px;background:${o==myAvatar?'#FFD93D':'#fff'}">${o}</button>`; }); let el=document.getElementById('avatarPick'); if(el) el.innerHTML=h; let left=document.getElementById('avLeftEmoji'); if(left) left.innerText=myAvatar; }
+function pickAvatar(a){ myAvatar=a; localStorage.setItem('whot_avatar',a); renderAvatarPick(); }
+  function saveGame(){
+  try{
+    let data={my:my,cpus:cpus,center:center,discard:discardPile,currentPlayer:currentPlayer,round:round,mode:mode,eliminated:eliminated,callShape:callShape,pendingPick:pendingPick,pendingPickType:pendingPickType,deck:deck};
+    localStorage.setItem('whot_save',JSON.stringify(data));
+    localStorage.setItem('whot_stars',stars);
+    localStorage.setItem('whot_wins',totalWins);
+    localStorage.setItem('whot_tournament',JSON.stringify(tournamentWins));
+  }catch(e){}
+}
+function continueSavedGame(){
+  try{
+    let s=JSON.parse(localStorage.getItem('whot_save'));
+    if(!s){ alert('No saved game'); return; }
+    my=s.my; cpus=s.cpus; center=s.center; discardPile=s.discard||[]; currentPlayer=s.currentPlayer; round=s.round; mode=s.mode; eliminated=s.eliminated||[]; callShape=s.callShape; pendingPick=s.pendingPick||0; pendingPickType=s.pendingPickType||0; deck=s.deck||[];
+    document.getElementById('menu').style.display='none'; document.getElementById('game').style.display='block';
+    msg('📱 Continued last game! Welcome back!');
+    render();
+  }catch(e){ alert('Save no fit load'); }
+}
+function getCpuDelay(){ return 1500 + Math.floor(Math.random()*500); }
+function enableVoice(){
+  voiceUnlocked=true; voiceOn=true;
+  document.getElementById('voiceStatus').innerText='Voice: ON ✅ Pidgin Voice!';
+  document.getElementById('voiceBtn').innerText='✅ VOICE ENABLED - Pidgin!';
+  document.getElementById('voiceBtn').style.background='#2ecc71';
+  try{
+    if('speechSynthesis' in window){
+      window.speechSynthesis.cancel();
+      let u=new SpeechSynthesisUtterance('Voice enabled. Good luck. Naija Whot! You go win!');
+      u.rate=0.9; u.volume=1; window.speechSynthesis.speak(u);
+    }
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state=='suspended') AC.resume();
+  }catch(e){}
+  showVoiceBubble('Voice Enabled! You go win!');
+}
+function testVoice(){ enableVoice(); setTimeout(()=>{ speak('Pick Two! You don enter am!'); },300); setTimeout(()=>{ speak('Last Card! You almost win!'); },1800); }
+function showVoiceBubble(text){
+  let b=document.getElementById('voiceBubble'); let bm=document.getElementById('voiceBubbleMenu');
+  if(b){ b.innerText='🔊 '+text; b.style.display='block'; setTimeout(()=>{ b.style.display='none'; },2500); }
+  if(bm){ bm.innerText='🔊 '+text; bm.style.display='block'; setTimeout(()=>{ bm.style.display='none'; },2500); }
+}
+function speak(text){
+  showVoiceBubble(text);
+  if(!voiceOn) return;
+  try{
+    if('speechSynthesis' in window){
+      if(window.speechSynthesis.paused) window.speechSynthesis.resume();
+      window.speechSynthesis.cancel();
+      let u=new SpeechSynthesisUtterance(text); u.rate=0.95; u.pitch=1.0; u.volume=1.0;
+      let voices=window.speechSynthesis.getVoices();
+      if(voices.length>0){ let en=voices.find(v=>v.lang && v.lang.toLowerCase().startsWith('en')); if(en) u.voice=en; }
+      setTimeout(()=>{ window.speechSynthesis.speak(u); },50);
+    }
+  }catch(e){}
+  if(text.includes('Pick Two')) beep(600,0.3,'square');
+  if(text.includes('Pick Three')) beep(500,0.3,'square');
+  if(text.includes('Last Card')) beep(900,0.4,'sine');
+  if(text.includes('Check Up')) { beep(700,0.2); setTimeout(()=>beep(900,0.2),250); }
+}
+function voicePowerCard(c){
+  if(c.n==2) speak('Pick Two! You don enter am!');
+  else if(c.n==5) speak('Pick Three! Omo, you don enter am!');
+  else if(c.n==1) speak('Hold On! You go play again!');
+  else if(c.n==8) speak('Suspension! You go miss turn!');
+  else if(c.n==14) speak('General Market! Everybody go to market!');
+  else if(c.n==20) speak('Whot! Wetin you need?');
+}
+function checkVoiceCount(handLen){ if(handLen==2){ speak('Warning! Two cards remain!'); } else if(handLen==1){ speak('Last Card! You almost win!'); } }
+function beep(f,d,type){ if(!soundOn) return; try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); if(AC.state=='suspended') AC.resume(); let o=AC.createOscillator(),g=AC.createGain(); o.type=type||'sine'; o.frequency.value=f; o.connect(g); g.connect(AC.destination); o.start(); g.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+d); o.stop(AC.currentTime+d);}catch(e){} }
+function sCard(){ beep(800,0.08,'triangle'); } function sPick(){ beep(300,0.2,'sawtooth'); } function sWin(){ beep(600,0.15); setTimeout(()=>beep(800,0.15),150); setTimeout(()=>beep(1000,0.3),300); } function sLose(){ beep(200,0.3,'sawtooth'); }
+function msg(t){ document.getElementById('msg').innerText=t; }
+function saveSettings(){ soundOn=document.getElementById('soundSel').value=='on'; voiceOn=document.getElementById('voiceSel').value=='on'; shareSpeed=parseInt(document.getElementById('speedSel').value); powerRules=document.getElementById('powerSel').value=='on'; document.getElementById('powerPill').innerText=powerRules?'⚡ POWER ON':'⚡ POWER OFF'; alert('Saved ✅ Sharing: '+(shareSpeed/1000)+' sec'); document.getElementById('settingsBox').style.display='none'; }
+function backToMenu(){ saveGame(); document.getElementById('game').style.display='none'; document.getElementById('menu').style.display='block'; updateLevelBox(); }
+function showMulti(){ document.getElementById('multiBox').style.display='block'; document.getElementById('multiBox').scrollIntoView(); }
+function switchTab(t){ connMode=t; document.getElementById('tabLocal').classList.toggle('active',t=='local'); document.getElementById('tabOnline').classList.toggle('active',t=='online'); }
+function restartGame(){ eliminated=[]; isSpectator=false; document.getElementById('outBox').style.display='none'; document.getElementById('scoreBox').style.display='none'; youWins=0; cpuWins=[0,0,0]; round=1; totalWinsRecord={you:0,cpu:0}; msg('🔄 New Game Started!'); speak('New game started, you go win!'); startGame(); }
+function watchAsSpectator(){ isSpectator=true; document.getElementById('outBox').style.display='none'; msg('👀 You dey watch remaining players.'); speak('You dey watch now'); }
+function sendChat(text){
+  let box=document.getElementById('chatBox'); box.style.display='block';
+  box.innerHTML+=`<div><b>YOU:</b> ${text}</div>`;
+  speak(text); saveGame();
+  setTimeout(()=>{
+    let replies=['😂 Na wa for you!', '🔥 I go win this one!', '😭 Abeg no do me like that!', '👏 Nice play o!', '😎 Watch me now!'];
+    let cpuName=cpuNames[Math.floor(Math.random()*3)]||'Oz';
+    let reply=replies[Math.floor(Math.random()*replies.length)];
+    box.innerHTML+=`<div><b>${cpuName}:</b> ${reply}</div>`;
+    box.scrollTop=box.scrollHeight;
+  },1500);
+}
+function showBigCard(c, playerName){
+  let overlay=document.getElementById('bigCardOverlay');
+  let content=document.getElementById('bigCardContent');
+  let txt=document.getElementById('bigCardText');
+  let label='';
+  if(c.n==2) label='PICK 2!';
+  else if(c.n==5) label='PICK 3!';
+  else if(c.n==1) label='HOLD ON!';
+  else if(c.n==8) label='SUSPENSION!';
+  else if(c.n==14) label='GENERAL MARKET!';
+  else if(c.n==20) label='WHOT!';
+  else label=c.n+' '+c.s;
+  content.innerHTML=`${shapes[c.s]}<br><span style="font-size:28px">${label}</span><br><span style="font-size:20px">${c.n}</span>`;
+  txt.innerText=`${playerName} play ${label} (1.5s)`;
+  overlay.style.display='flex';
+  setTimeout(()=>{ overlay.style.display='none'; },1500);
+}
+window.onload=()=>{ loadProgress(); };
+  let peer=null, conns=[], isHost=false, mySeat=0, roomId='', myName='Bullish', friendNames=['YOU','Oz','Bia','Chiamaka'], isFriendsMode=false, connMode='local';
+function getMyName(){ return document.getElementById('myName').value.trim()||'Player'; }
+function createRoom(){
+myName=getMyName(); isHost=true; isFriendsMode=true; mySeat=0; friendNames=[myName]; roomId=Math.floor(1000+Math.random()*9000).toString();
+let prefix= connMode=='local' ? 'whot-local-' : 'whot-online-';
+document.getElementById('roomStatus').innerText='Creating '+(connMode=='local'?'LOCAL':'ONLINE')+' room '+roomId+'...';
+document.getElementById('connBadge').innerText=connMode=='local'?'🏠 LOCAL':'🌐 ONLINE';
+peer=new Peer(prefix+roomId);
+peer.on('open',()=>{ document.getElementById('roomStatus').innerText='✅ Room: '+roomId+' Share am! You be HOST'; document.getElementById('roomLabel').innerText='Room: '+roomId+' | HOST'; document.getElementById('playersList').innerHTML='1. '+myName+' (HOST)<br>Waiting...'; document.getElementById('startFriendsBtn').style.display='block'; });
+peer.on('connection',(conn)=>{ conn.on('open',()=>{ conns.push(conn); conn.on('data',(d)=>onNetData(d)); let seat=conns.length; friendNames[seat]='Friend '+seat; conn.send({type:'welcome',seat:seat,room:roomId,connMode:connMode,names:friendNames}); broadcast({type:'players',names:friendNames}); updatePlayersList(); }); });
+peer.on('error',(e)=>{ document.getElementById('roomStatus').innerText='Error: '+e.type; });
+}
+function joinRoom(){
+myName=getMyName(); let code=document.getElementById('joinCode').value.trim(); if(!code){ alert('Type Code!'); return; } roomId=code; isHost=false; isFriendsMode=true;
+let prefix= connMode=='local' ? 'whot-local-' : 'whot-online-';
+document.getElementById('roomStatus').innerText='Joining '+code+'...'; document.getElementById('connBadge').innerText=connMode=='local'?'🏠 LOCAL':'🌐 ONLINE';
+peer=new Peer(); peer.on('open',()=>{ let conn=peer.connect(prefix+code,{reliable:true}); conn.on('open',()=>{ conns=[conn]; conn.on('data',(d)=>onNetData(d)); conn.send({type:'join',name:myName}); document.getElementById('roomStatus').innerText='✅ Connected! Wait Host START...'; }); });
+}
+function updatePlayersList(){ let h='Players:<br>'; friendNames.slice(0,conns.length+1).forEach((n,i)=>{ h+=(i+1)+'. '+n+(i==0?' (HOST)':' ✅')+'<br>'; }); document.getElementById('playersList').innerHTML=h; }
+function broadcast(data){ conns.forEach(c=>{ try{ c.send(data); }catch(e){} }); }
+function sendToHost(data){ if(conns[0]) conns[0].send(data); }
+function onNetData(data){
+if(data.type=='welcome'){ mySeat=data.seat; connMode=data.connMode||connMode; friendNames=data.names||friendNames; document.getElementById('roomStatus').innerText='✅ Joined! You be Player '+(mySeat+1); updatePlayersList(); }
+if(data.type=='players'){ friendNames=data.names; updatePlayersList(); }
+if(data.type=='join' && isHost){ friendNames[conns.length]=data.name; broadcast({type:'players',names:friendNames}); updatePlayersList(); }
+if(data.type=='state'){ applyState(data.state); }
+if(data.type=='move' && isHost){ handleFriendMove(data); }
+if(data.type=='chat'){ let box=document.getElementById('chatBox'); box.style.display='block'; box.innerHTML+=`<div><b>${data.name}:</b> ${data.text}</div>`; }
+}
+function hostStartFriends(){
+if(conns.length==0){ alert('No friends joined!'); return; }
+let total=conns.length+1; mode=total-1; isFriendsMode=true;
+document.getElementById('menu').style.display='none'; document.getElementById('game').style.display='block';
+startGameFriends();
+}
+function startGameFriends(){ buildDeck(); my=[]; cpus=[]; for(let i=0;i<mode;i++) cpus.push([]); discardPile=[]; eliminated=[]; isSpectator=false;
+for(let i=0;i<6;i++){ my.push(deck.pop()); for(let k=0;k<mode;k++) cpus[k].push(deck.pop()); }
+center=deck.pop(); while([1,2,5,8,14,20].includes(center.n)){ deck.unshift(center); center=deck.pop(); }
+currentPlayer=0; callShape=null; pendingPick=0; pendingPickType=0; broadcastState(); renderFriends(); }
+function broadcastState(){ let state={hands:[my,...cpus],center:center,discard:discardPile,callShape:callShape,pendingPick:pendingPick,pendingPickType:pendingPickType,currentPlayer:currentPlayer,deckCount:deck.length,msgText:document.getElementById('msg').innerText,lastPlay:document.getElementById('lastPlay')?document.getElementById('lastPlay').innerText:'',round:round,names:friendNames,mode:mode,connMode:connMode,eliminated:eliminated}; broadcast({type:'state',state:state}); }
+function applyState(s){ mode=s.mode; friendNames=s.names||friendNames; connMode=s.connMode||connMode; eliminated=s.eliminated||[]; discardPile=s.discard||[]; my=s.hands[mySeat]||[]; cpus=[]; for(let i=0;i<=mode;i++){ if(i!=mySeat) cpus.push(s.hands[i]); } center=s.center; callShape=s.callShape; pendingPick=s.pendingPick; pendingPickType=s.pendingPickType; currentPlayer=s.currentPlayer; document.getElementById('menu').style.display='none'; document.getElementById('game').style.display='block'; document.getElementById('msg').innerText=s.msgText||''; renderFriends(); }
+function handleFriendMove(d){
+if(d.action=='play'){
+let seat=d.seat; let hand= seat==0?my:cpus[seat-1]; if(seat==0) return; let idx=d.index; if(idx<0||idx>=hand.length) return;
+let card=hand.splice(idx,1)[0]; if(center) discardPile.push(center); center=card; voicePowerCard(card); checkVoiceCount(hand.length); showBigCard(card, friendNames[seat]||'Friend'); document.getElementById('lastPlay').innerText=(friendNames[seat]||'Friend')+' '+card.n+' '+card.s;
+if(hand.length==0){ handleCheckUp(seat); return; }
+if(powerRules && card.n==1){ msg((friendNames[seat]||'Friend')+' HOLD ON! E play again!'); currentPlayer=seat; broadcastState(); return; }
+if(powerRules && card.n==14){ let names=[]; for(let p=0;p<=mode;p++){ if(p!=seat && !eliminated.includes(p)){ if(ensureDeck()){ let picked=deck.pop(); if(p==0) my.push(picked); else cpus[p-1].push(picked); names.push((friendNames[p]||'Player')+' +1'); } } } msg((friendNames[seat]||'Friend')+' GENERAL MARKET! Everybody pick 1: '+names.join(', ')+' - '+(friendNames[seat]||'Friend')+' play again!'); currentPlayer=seat; broadcastState(); return; }
+if(powerRules && pendingPick>0 && card.n==pendingPickType){ pendingPick=0; pendingPickType=0; currentPlayer=(seat+1)%(mode+1); broadcastState(); return; }
+if(powerRules && card.n==2){ pendingPick=2; pendingPickType=2; currentPlayer=(seat+1)%(mode+1); broadcastState(); return; }
+if(powerRules && card.n==5){ pendingPick=3; pendingPickType=5; currentPlayer=(seat+1)%(mode+1); broadcastState(); return; }
+if(powerRules && card.n==8){ currentPlayer=(seat+2)%(mode+1); broadcastState(); return; }
+currentPlayer=(seat+1)%(mode+1); broadcastState();
+}
+if(d.action=='draw'){ let seat=d.seat; if(powerRules && pendingPick>0){ let amt=pendingPickType==2?2:3; for(let i=0;i<amt;i++){ if(!ensureDeck()) break; if(seat==0) my.push(deck.pop()); else cpus[seat-1].push(deck.pop()); } pendingPick=0; pendingPickType=0; } else { if(ensureDeck()){ if(seat==0) my.push(deck.pop()); else cpus[seat-1].push(deck.pop()); } } currentPlayer=(seat+1)%(mode+1); broadcastState(); }
+if(d.action=='shape'){ callShape=d.shape; pendingWhot=false; currentPlayer=(d.seat+1)%(mode+1); broadcastState(); }
+}
+function buildDeck(){
+deck=[]; discardPile=[];
+let spec={circle:[1,2,3,4,5,7,8,10,11,12,13,14],triangle:[1,2,3,4,5,7,8,10,11,12,13,14],square:[1,2,3,4,5,7,8,10,11,12,13,14],star:[1,2,3,4,5,7,8],cross:[1,2,3,4,5,7,8]};
+for(let s in spec) for(let n of spec[s]) deck.push({n:n,s:s});
+for(let i=0;i<4;i++) deck.push({n:20,s:'whot'});
+for(let i=deck.length-1;i>0;i--){ let j=Math.floor(Math.random()*(i+1)); [deck[i],deck[j]]=[deck[j],deck[i]]; }
+}
+function ensureDeck(){
+if(deck.length>0) return true;
+if(discardPile.length==0){ return false; }
+msg('🔄 Market finish! Reshuffling...'); speak('Market don finish, we go reshuffle');
+deck=[...discardPile]; discardPile=[];
+for(let i=deck.length-1;i>0;i--){ let j=Math.floor(Math.random()*(i+1)); [deck[i],deck[j]]=[deck[j],deck[i]]; }
+return true;
+}
+function countPoints(hand){ let total=0; hand.forEach(c=>{ if(c.s=='star'){ total += c.n * 2; } else { total += c.n; } }); return total; }
+function countAllPoints(){
+let scores=[];
+scores.push({player:0,name:friendNames[0]||'YOU',points:countPoints(my),cards:my.length,hand:[...my]});
+cpus.forEach((h,i)=>{ scores.push({player:i+1,name:friendNames[i+1]||cpuNames[i]||('CPU '+(i+1)),points:countPoints(h),cards:h.length,hand:[...h]}); });
+return scores;
+}
+function showCountingStepByStep(scores, doneCallback){
+  let box=document.getElementById('scoreBox'); box.style.display='block';
+  box.innerHTML='<b>📊 CHECK UP! Reviewing Player by Player...</b><br><small>Star = Double! 1.5s per card.</small><br><br>';
+  let playerIdx=0;
+  function countNextPlayer(){
+    if(playerIdx>=scores.length){
+      let sorted=[...scores].sort((a,b)=>b.points-a.points);
+      let highest=Math.max(...scores.map(s=>s.points));
+      let html='<b>📊 FINAL COUNT:</b><br>';
+      sorted.forEach(s=>{ html+=`<b>${s.name}:</b> ${s.points} pts ${s.points==highest?'❌ HIGHEST - OUT':''}<br>`; });
+      box.innerHTML+= '<br><hr>'+html;
+      if(doneCallback) setTimeout(doneCallback,1500);
+      return;
+    }
+    let s=scores[playerIdx];
+    box.innerHTML+=`<b>=== Reviewing ${s.name} ===</b><br><small>Hand: ${s.cards} cards</small><br>`;
+    speak('Reviewing '+s.name+', make we count');
+    let running=0; let cardIdx=0;
+    function countNextCard(){
+      if(cardIdx>=s.hand.length){
+        box.innerHTML+=`<b>✅ ${s.name} Total = ${running} pts</b><br><br><hr><br>`;
+        speak(s.name+' total '+running);
+        playerIdx++; setTimeout(countNextPlayer,1500); return;
+      }
+      let c=s.hand[cardIdx]; let pts= c.s=='star' ? c.n*2 : c.n; let old=running; running+=pts;
+      if(c.s=='star'){ box.innerHTML+=`Card ${cardIdx+1}: ${shapes[c.s]}${c.n} = ${c.n} x 2 = ${pts} → ${old} + ${pts} = <b>${running}</b><br>`; speak('Star '+c.n+' double '+pts); }
+      else { box.innerHTML+=`Card ${cardIdx+1}: ${shapes[c.s]}${c.n} = ${pts} → ${old} + ${pts} = <b>${running}</b><br>`; speak(c.n+' equals '+pts); }
+      box.scrollTop=box.scrollHeight; cardIdx++; setTimeout(countNextCard,1500);
+    }
+    countNextCard();
+  }
+  countNextPlayer();
+}
+function handleCheckUp(checkPlayer){
+speak('Check Up! Oya make we count!');
+let scores=countAllPoints();
+msg(`🏆 ${friendNames[checkPlayer]||'Player'} CHECK UP! Reviewing one by one...`);
+showCountingStepByStep(scores, ()=>{
+  let highest=Math.max(...scores.map(s=>s.points));
+  let outPlayer=scores.find(s=>s.points==highest);
+  msg(`🏆 ${outPlayer.name} get ${highest} pts - HIGHEST, e OUT!`);
+  speak(outPlayer.name+' don comot with '+highest+' points');
+  if(outPlayer){
+    eliminated.push(outPlayer.player);
+    if(outPlayer.player==0 && !isFriendsMode){
+      playerPoints=highest;
+      document.getElementById('outReason').innerText=`You get ${highest} points - Highest! You are OUT.`;
+      document.getElementById('outBox').style.display='block'; sLose();
+    }
+  }
+  if(mode+1-eliminated.length<2){
+    let winner=0; for(let i=0;i<=mode;i++){ if(!eliminated.includes(i)){ winner=i; break; } }
+    setTimeout(()=>winTournament(winner),1500); return;
+  }
+  setTimeout(()=>{ startNewRoundForSurvivors(checkPlayer); },3000);
+});
+}
+function startNewRoundForSurvivors(lastCheckPlayer){
+  if(!eliminated.includes(0)){ document.getElementById('outBox').style.display='none'; }
+  document.getElementById('scoreBox').style.display='none';
+  round++; document.getElementById('roundTxt').innerText=round;
+  msg(`🔄 Round ${round} - New cards for remaining ${mode+1-eliminated.length} players!`);
+  speak(`New round. ${mode+1-eliminated.length} players remain.`);
+  buildDeck();
+  my = eliminated.includes(0) ? [] : [];
+  cpus = [];
+  for(let i=0;i<mode;i++) cpus.push([]);
+  for(let k=0;k<6;k++){
+    if(!eliminated.includes(0)) my.push(deck.pop());
+    for(let p=1;p<=mode;p++){ if(!eliminated.includes(p)) cpus[p-1].push(deck.pop()); }
+  }
+  center=deck.pop();
+  while([1,2,5,8,14,20].includes(center.n)){ deck.unshift(center); center=deck.pop(); }
+  discardPile=[]; callShape=null; pendingPick=0; pendingPickType=0; pendingWhot=false; saidWhot=false;
+  let nxt=(lastCheckPlayer+1)%(mode+1);
+  let tries=0; while(eliminated.includes(nxt) && tries<10){ nxt=(nxt+1)%(mode+1); tries++; }
+  currentPlayer=nxt;
+  document.getElementById('aliveTxt').innerText=mode+1-eliminated.length;
+  render(); saveGame();
+  if(isFriendsMode && isHost) broadcastState();
+  else if(!isFriendsMode && currentPlayer!=0) setTimeout(()=>cpuTurn(currentPlayer),getCpuDelay());
+  else if(!isFriendsMode && currentPlayer==0 && isSpectator) setTimeout(()=>cpuTurn(0),getCpuDelay());
+}
+function winTournament(winner){
+let winnerName= winner==0 ? 'YOU' : (friendNames[winner]||cpuNames[winner-1]||'CPU');
+if(winner==0){ youWins++; totalWinsRecord.you++; totalWins++; stars+=5; sWin(); speak('You win the tournament! You be champion!'); msg('🏆🏆 YOU WIN TOURNAMENT! Final Winner! +5 Stars!'); }
+else { cpuWins[winner-1]++; totalWinsRecord.cpu++; sLose(); speak(winnerName+' win the tournament'); msg('🏆 '+winnerName+' WIN TOURNAMENT! Final Winner!'); }
+if(winner==0) tournamentWins.you++;
+else if(winnerName=='Oz') tournamentWins.Oz++;
+else if(winnerName=='Bia') tournamentWins.Bia++;
+else if(winnerName=='Chiamaka') tournamentWins.Chiamaka++;
+localStorage.setItem('whot_tournament',JSON.stringify(tournamentWins));
+localStorage.setItem('whot_wins',totalWins);
+localStorage.setItem('whot_stars',stars);
+updateLevelBox();
+let champ=null;
+if(tournamentWins.you>=tournamentTarget) champ='YOU';
+if(tournamentWins.Oz>=tournamentTarget) champ='Oz';
+if(tournamentWins.Bia>=tournamentTarget) champ='Bia';
+if(tournamentWins.Chiamaka>=tournamentTarget) champ='Chiamaka';
+if(champ){
+  setTimeout(()=>{ alert(`🏆🏆 ${champ} na CHAMPION! First to ${tournamentTarget} wins! Tournament reset!`); speak(champ+' na champion!'); tournamentWins={you:0,Oz:0,Bia:0,Chiamaka:0}; updateLevelBox(); },1000);
+}
+document.getElementById('winsTxt').innerText=youWins;
+document.getElementById('tourn').innerText=`🏆 YOU ${totalWinsRecord.you} - CPU ${totalWinsRecord.cpu}`;
+render(); saveGame();
+}
+function startWithMode(m){
+  friendNames=[getMyName(), 'Oz','Bia','Chiamaka'];
+  mode=m; isFriendsMode=false; eliminated=[]; isSpectator=false; document.getElementById('outBox').style.display='none'; document.getElementById('scoreBox').style.display='none'; youWins=0; cpuWins=[0,0,0]; round=1; document.getElementById('menu').style.display='none'; document.getElementById('game').style.display='block'; document.getElementById('modeTxt').innerText=mode==1?'1 vs 1 vs Oz':'1 vs 3 - Oz, Bia, Chiamaka'; document.getElementById('connBadge').innerText='Offline'; if(voiceUnlocked) speak('Game started, you go win!'); startGame();
+  }
+  function cardHTML(c,i,playable,isCenter,isDefend){
+let col=colors[c.s]||'#111';
+if(c.n==20){
+if(isCenter) return `<div class="card centerCard"><div class="num-t" style="color:#a8231a">20</div><div class="shape" style="color:#e17055">🌟</div><div style="text-align:center;font-size:11px;font-weight:900;color:#2ecc71">${callShape?callShape.toUpperCase():''}</div><div class="num-b" style="color:#a8231a">20</div></div>`;
+return `<div class="card ${playable?'playable':''} ${isDefend?'defend':''}" onclick="playCard(${i})"><div class="num-t" style="color:#a8231a">20</div><div class="shape" style="color:#e17055">🌟</div><div style="text-align:center;font-size:10px;font-weight:900">WHOT</div><div class="num-b" style="color:#a8231a">20</div></div>`;
+}
+return `<div class="card ${isCenter?'centerCard':''} ${isDefend?'defend':''} ${playable?'playable':''}" onclick="${isCenter?'':'playCard('+i+')'}"><div class="num-t" style="color:${col}">${c.n}</div><div class="ss" style="color:${col}">${shapes[c.s]}</div><div class="shape" style="color:${col}">${shapes[c.s]}</div><div class="ssb" style="color:${col}">${shapes[c.s]}</div><div class="num-b" style="color:${col}">${c.n}</div></div>`;
+}
+function backHTML(){ return `<div class="back"><span class="whotTxt">Whot</span><span class="flower">❀</span></div>`; }
+function canPlay(c){
+if(eliminated.includes(0)) return false;
+if(powerRules && pendingPick>0){ if(c.n==pendingPickType) return true; if(c.n==20) return true; return false; }
+if(!center) return true; if(c.n==20) return true; if(callShape) return c.s==callShape; return c.n==center.n||c.s==center.s;
+}
+function smallPile(count, isTop){
+  if(count==0) return '<div style="font-size:11px">OUT / No cards</div>';
+  let maxShow=Math.min(count, 7);
+  let html='<div class="'+(isTop?'oppSmallTop':'oppSmall')+'">';
+  for(let i=0;i<maxShow;i++){ let left=isTop? i*12 : i*8; html+=`<div class="miniBack" style="left:${left}px;top:0px">❀</div>`; }
+  html+='</div><div style="font-size:11px;font-weight:bold">'+count+' cards</div>';
+  return html;
+}
+function renderFriends(){
+document.getElementById('centerCard').innerHTML=center? cardHTML(center,-1,false,true,false):'';
+document.getElementById('deckCount').innerText=deck.length;
+document.getElementById('marketTxt').innerText=deck.length;
+document.getElementById('spotCount').innerText=discardPile.length;
+document.getElementById('aliveTxt').innerText=mode+1-eliminated.length;
+updateLevelBox();
+let callTxt='';
+if(powerRules && pendingPick>0) callTxt=`⚠️ PICK ${pendingPickType==2?'2':'3'} ATTACK!`;
+else if(callShape) callTxt=`Give me ${callShape.toUpperCase()} ${shapes[callShape]}`;
+else callTxt=currentPlayer==mySeat?'Your turn':(friendNames[currentPlayer]||'Player')+' turn';
+if(isSpectator) callTxt='👀 SPECTATOR - Watching...';
+document.getElementById('callTxt').innerHTML=callTxt+`<br><span style="font-size:12px">${currentPlayer==mySeat?'Your turn':(friendNames[currentPlayer]||'Player')+' turn'}</span>`;
+document.getElementById('turnTxt2').innerText=currentPlayer==mySeat?'Your turn':(friendNames[currentPlayer]||'Player')+' turn';
+let db=document.getElementById('defendBar');
+if(powerRules && currentPlayer==mySeat && pendingPick>0 && !isSpectator){ db.style.display='block'; db.innerText=`⚠️ DEFEND! Play Pick ${pendingPickType} to cancel, or press TAKE`; } else { db.style.display='none'; }
+let hasPlayable=false; if(currentPlayer==mySeat && !isSpectator){ my.forEach(c=>{ if(canPlay(c)) hasPlayable=true; }); }
+let hint=document.getElementById('tapMarketHint');
+let deckEl=document.getElementById('deckBackEl');
+if(currentPlayer==mySeat && !hasPlayable && !sharing && !pendingWhot && !isSpectator){
+  hint.style.display='block'; hint.innerText='👆 YOU NO GET CARD! TAP MARKET WITH YOUR HAND TO PICK!';
+  if(deckEl) deckEl.classList.add('tapMe');
+} else if(currentPlayer==mySeat && pendingPick>0 && !isSpectator){
+  hint.style.display='block'; hint.innerText='👆 TAP PICK / TAKE YOURSELF - No auto take!';
+  if(deckEl) deckEl.classList.add('tapMe');
+} else { hint.style.display='none'; if(deckEl) deckEl.classList.remove('tapMe'); }
+document.getElementById('cntLeft').innerText=my.length;
+document.getElementById('cntRight').innerText=cpus[0]?cpus[0].length:0;
+document.getElementById('cntTop').innerText=cpus[1]?cpus[1].length:0;
+document.getElementById('cntBottom').innerText=cpus[2]?cpus[2].length:0;
+document.getElementById('avLeftEmoji').innerText=myAvatar;
+document.getElementById('avRightEmoji').innerText=cpuAvatars[0];
+document.getElementById('avTopEmoji').innerText=cpuAvatars[2];
+document.getElementById('avBottomEmoji').innerText=cpuAvatars[1];
+document.getElementById('nameLeft').innerText=friendNames[mySeat]||'YOU';
+document.getElementById('nameRight').innerText=friendNames[(mySeat+1)%(mode+1)]||'Oz';
+document.getElementById('nameTop').innerText=friendNames[(mySeat+2)%(mode+1)]||'Chiamaka';
+document.getElementById('nameBottom').innerText=friendNames[(mySeat+3)%(mode+1)]||'Bia';
+let namesEls=[['nameLeft',mySeat],['nameRight',(mySeat+1)%(mode+1)],['nameTop',(mySeat+2)%(mode+1)],['nameBottom',(mySeat+3)%(mode+1)]];
+namesEls.forEach(([id, idx])=>{
+  let el=document.getElementById(id);
+  if(eliminated.includes(idx)){ el.style.background='#ff4757'; el.style.color='#fff'; el.innerText=(friendNames[idx]||'Player')+' OUT ❌'; }
+  else { el.style.background='#fff'; el.style.color='#111'; }
+});
+['avLeft','avRight','avTop','avBottom'].forEach(id=>document.getElementById(id).classList.remove('turn'));
+if(currentPlayer==mySeat && !isSpectator) document.getElementById('avLeft').classList.add('turn');
+if(eliminated.includes(mySeat)) document.getElementById('avLeft').classList.add('out');
+let h=''; if(!isSpectator){ my.forEach((c,i)=>{ let isDef=(powerRules&&pendingPick>0)&&canPlay(c); h+=cardHTML(c,i, currentPlayer==mySeat&&canPlay(c)&&!sharing,false,isDef); }); } else { h='<div style="font-size:11px">👀 Spectator<br>Watching</div>'; }
+document.getElementById('myHand').innerHTML=h;
+if(mode==1){
+  let rh=''; if(cpus[0]) cpus[0].forEach(()=>{ rh+=backHTML(); }); document.getElementById('handRight').innerHTML=rh;
+} else {
+  document.getElementById('handRight').innerHTML=smallPile(cpus[0]?cpus[0].length:0,false);
+  document.getElementById('handTop').innerHTML=smallPile(cpus[1]?cpus[1].length:0,true);
+  if(mode==3) document.getElementById('handBottom').innerHTML=smallPile(cpus[2]?cpus[2].length:0,true);
+  else document.getElementById('handBottom').innerHTML='';
+}
+document.getElementById('pTop').style.display=mode==1?'none':'block';
+document.getElementById('pBottom').style.display=mode==1?'none':'block';
+}
+function render(){ renderFriends(); saveGame(); }
+function highlightAvatar(playerIdx){
+  let map={0:'avLeft',1:'avRight',2:'avTop',3:'avBottom'};
+  let id=map[playerIdx]; if(!id) return;
+  let el=document.getElementById(id);
+  if(el){ el.classList.add('gettingCard'); setTimeout(()=>{ el.classList.remove('gettingCard'); },500); }
+}
+function startGame(){
+if(sharing) return; buildDeck(); my=[]; cpus=[]; for(let i=0;i<mode;i++) cpus.push([]); center=null; currentPlayer=0; callShape=null; pendingWhot=false; saidWhot=false; pendingPick=0; pendingPickType=0; eliminated=[]; isSpectator=false; document.getElementById('outBox').style.display='none'; document.getElementById('scoreBox').style.display='none';
+document.getElementById('whotPick').style.display='none'; msg('Sharing Nigeria 54 cards... One by one, 0.5s per card 🃏'); sharing=true;
+let shareBar=document.getElementById('shareBar'); shareBar.style.display='block'; shareBar.innerText='🃏 Dealer dey share... 1 by 1, 0.5s per card - FAST!';
+speak('Sharing cards, one by one, fast fast'); render();
+let dealOrder=[]; for(let r=0;r<6;r++){ for(let p=0;p<=mode;p++){ dealOrder.push(p); } }
+let dealIdx=0;
+let shareInt=setInterval(()=>{
+  if(dealIdx<dealOrder.length){
+    if(!ensureDeck()){ clearInterval(shareInt); shareBar.style.display='none'; sharing=false; return; }
+    let player=dealOrder[dealIdx];
+    let name= friendNames[player]||('Player '+(player+1));
+    shareBar.innerText=`🃏 Sharing ${dealIdx+1}/${dealOrder.length} - Card goes to ${name}... (0.5s)`;
+    msg(`Sharing ${dealIdx+1}/${dealOrder.length} - Card goes to ${name}...`);
+    highlightAvatar(player);
+    if(player==0) my.push(deck.pop()); else cpus[player-1].push(deck.pop());
+    sCard(); dealIdx++; render();
+  } else {
+    clearInterval(shareInt);
+    shareBar.innerText='🃏 Sharing done! Putting center card...';
+    setTimeout(()=>{
+      center=deck.pop(); while([1,2,5,8,14,20].includes(center.n)){ deck.unshift(center); center=deck.pop(); }
+      sharing=false; shareBar.style.display='none';
+      msg('Cards shared! Your turn - Tap MARKET yourself if you no get card.');
+      speak('Cards shared, your turn, you go win!');
+      document.getElementById('lastPlay').innerText='Center '+center.n+' '+center.s; render();
+    },500);
+  }
+}, 500);
+}
+function playCard(i){
+if(isSpectator){ msg('👀 Spectator - Press RESTART'); return; }
+if(isFriendsMode){
+if(currentPlayer!=mySeat||sharing||pendingWhot) return;
+if(isHost){ doPlayCardHost(i); broadcastState(); } else { sendToHost({type:'move',action:'play',index:i,seat:mySeat}); }
+return;
+}
+if(currentPlayer!=0||sharing||pendingWhot) return; doPlayCardHost(i);
+}
+function doPlayCardHost(i){
+let c=my[i]; if(!canPlay(c)){ if(powerRules && pendingPick>0) msg(`❌ Defend with Pick ${pendingPickType} or TAP MARKET TO TAKE`); else if(callShape) msg(`❌ WHOT says Give me ${callShape.toUpperCase()}!`); else msg('❌ No match! Tap MARKET to pick.'); beep(150,0.2,'sawtooth'); speak('No match, tap market'); return; }
+let cardsBefore = my.length;
+if(cardsBefore==2 && !saidWhot && pendingPick==0 && c.n!=1 && c.n!=14){
+  msg('⚠️ You forgot I NEED WHOT! Pick 1 penalty'); speak('You forget to talk say you need Whot');
+  if(ensureDeck()) my.push(deck.pop()); sPick();
+}
+msg(`Playing ${c.n} ${c.s} gently... (1.5s)`); speak('Playing '+c.n);
+my.splice(i,1); if(center) discardPile.push(center); center=c; saidWhot=false; sCard(); voicePowerCard(c); checkVoiceCount(my.length); if([1,2,5,8,14,20].includes(c.n)) showBigCard(c, 'YOU'); document.getElementById('lastPlay').innerText='You '+c.n+' '+c.s;
+render();
+setTimeout(()=>{
+  if(my.length==0){ handleCheckUp(0); return; }
+  if(c.n==20){ pendingPick=0; pendingPickType=0; callShape=null; pendingWhot=true; document.getElementById('whotPick').style.display='block'; msg('🌟 WHOT! What do you NEED?'); render(); return; }
+  applySpecial(c,1,true);
+},1500);
+}
+function chooseShape(s){
+if(isFriendsMode && !isHost){ sendToHost({type:'move',action:'shape',shape:s,seat:mySeat}); return; }
+callShape=s; pendingWhot=false; document.getElementById('whotPick').style.display='none'; msg('Give me '+s.toUpperCase()+' '+shapes[s]+'!'); speak('Give me '+s); nextPlayer(); if(isFriendsMode) broadcastState();
+}
+function pick(who,num){ for(let i=0;i<num;i++){ if(!ensureDeck()) break; let card=deck.pop(); if(who==0) my.push(card); else cpus[who-1].push(card); } }
+function applySpecial(c,next,isMe){
+  let total=mode+1; let playerWhoPlayed = (next - 1 + total) % total;
+  if(powerRules && pendingPick>0 && c.n==pendingPickType){ pendingPick=0; pendingPickType=0; callShape=null; msg((isMe?'You DEFEND! ✅ ':'CPU DEFENDS! ✅ ')+'Attack don die!'); speak('Defended! You sharp!'); nextPlayer(); if(isFriendsMode&&isHost) broadcastState(); return; }
+  if(!powerRules){ pendingPick=0; pendingPickType=0; callShape=null; nextPlayer(); if(isFriendsMode&&isHost) broadcastState(); return; }
+  if(c.n==1){ msg('✋ HOLD ON! '+(playerWhoPlayed==0?'YOU play again!':(friendNames[playerWhoPlayed]||'CPU')+' play again!')); speak('Hold On! Play again!'); currentPlayer=playerWhoPlayed; render(); if(isFriendsMode && isHost){ broadcastState(); return; } if(!isFriendsMode && currentPlayer!=0){ setTimeout(()=>cpuTurn(currentPlayer),getCpuDelay()); return; } if(!isFriendsMode && currentPlayer==0 && isSpectator){ setTimeout(()=>cpuTurn(0),getCpuDelay()); return; } return; }
+  if(c.n==14){
+    msg(`📦 GENERAL MARKET! Everybody go to market... (1.5s)`); speak('General Market! Everybody go to market!');
+    setTimeout(()=>{
+      let names=[]; for(let p=0;p<=mode;p++){ if(p==playerWhoPlayed) continue; if(eliminated.includes(p)) continue; if(ensureDeck()){ let picked=deck.pop(); if(p==0) my.push(picked); else cpus[p-1].push(picked); names.push((friendNames[p]||'Player')+' +1'); highlightAvatar(p); } }
+      msg(`📦 GENERAL MARKET! Everybody pick 1: ${names.join(', ')} - ${(playerWhoPlayed==0?'YOU':(friendNames[playerWhoPlayed]||'CPU'))} continue!`); speak('Everybody don pick, you continue');
+      currentPlayer=playerWhoPlayed; render();
+      if(isFriendsMode && isHost){ broadcastState(); return; }
+      if(!isFriendsMode && currentPlayer!=0){ setTimeout(()=>cpuTurn(currentPlayer),getCpuDelay()); return; }
+      if(!isFriendsMode && currentPlayer==0 && isSpectator){ setTimeout(()=>cpuTurn(0),getCpuDelay()); return; }
+    },1500); return;
+  }
+  if(c.n==2){ pendingPick=2; pendingPickType=2; msg('PICK 2! Next fit defend or take 2'); sPick(); nextPlayer(); if(isFriendsMode&&isHost) broadcastState(); return; }
+  if(c.n==5){ pendingPick=3; pendingPickType=5; msg('PICK 3! Next fit defend or take 3'); sPick(); nextPlayer(); if(isFriendsMode&&isHost) broadcastState(); return; }
+  if(c.n==8){ msg('SUSPENSION 8! Next miss turn!'); let skipNext=(next+1)%(mode+1); while(eliminated.includes(skipNext)) skipNext=(skipNext+1)%(mode+1); currentPlayer=skipNext; render(); if(isFriendsMode&&isHost) broadcastState(); else setTimeout(()=>{ if(currentPlayer==0 && !isSpectator) render(); else cpuTurn(currentPlayer); },getCpuDelay()); return; }
+  pendingPick=0; pendingPickType=0; callShape=null; nextPlayer(); if(isFriendsMode&&isHost) broadcastState();
+}
+function nextPlayer(){ let nxt=(currentPlayer+1)%(mode+1); let tries=0; while(eliminated.includes(nxt) && tries<10){ nxt=(nxt+1)%(mode+1); tries++; } currentPlayer=nxt; render(); if(!isFriendsMode && currentPlayer!=0) setTimeout(()=>cpuTurn(currentPlayer),getCpuDelay()); else if(!isFriendsMode && currentPlayer==0 && isSpectator) setTimeout(()=>cpuTurn(0),getCpuDelay()); }
+function cpuTurn(idx){
+if(eliminated.includes(idx)) { nextPlayer(); return; }
+msg(`🤔 ${(friendNames[idx]||cpuNames[idx-1]||'CPU '+idx)} dey think... (1.5s - 2s)`);
+let delay=getCpuDelay();
+setTimeout(()=>{
+  let hand= idx==0?my:cpus[idx-1]; if(!hand) return;
+  let found=-1;
+  if(powerRules && pendingPick>0){ for(let i=0;i<hand.length;i++){ if(canPlay(hand[i])){ found=i; break; } } if(found==-1){ let amt=pendingPickType==2?2:3; for(let k=0;k<amt;k++){ if(!ensureDeck()) break; hand.push(deck.pop()); } msg((friendNames[idx]||'CPU')+' pick '+amt); pendingPick=0; pendingPickType=0; sPick(); nextPlayer(); return; } }
+  else { for(let i=0;i<hand.length;i++){ if(canPlay(hand[i])){ found=i; break; } } if(found==-1){ if(ensureDeck()){ hand.push(deck.pop()); msg((friendNames[idx]||'CPU')+' pick 1'); sPick(); } else { let scores=countAllPoints(); showCountingStepByStep(scores, ()=>{}); let highest=Math.max(...scores.map(s=>s.points)); let outP=scores.find(s=>s.points==highest); eliminated.push(outP.player); if(outP.player==0){ document.getElementById('outReason').innerText='No cards left, you get '+highest+' - OUT'; document.getElementById('outBox').style.display='block'; } else { msg(outP.name+' OUT!'); } if(mode+1-eliminated.length<2){ let w=0; for(let i=0;i<=mode;i++){ if(!eliminated.includes(i)){ w=i; break; } } winTournament(w); return; } nextPlayer(); return; } nextPlayer(); return; } }
+  let c=hand.splice(found,1)[0]; if(center) discardPile.push(center); center=c; sCard(); voicePowerCard(c); checkVoiceCount(hand.length); if([1,2,5,8,14,20].includes(c.n)) showBigCard(c, friendNames[idx]||cpuNames[idx-1]||'CPU'); document.getElementById('lastPlay').innerText=(friendNames[idx]||'CPU')+' '+c.n+' '+c.s; msg(`${friendNames[idx]||'CPU'} play ${c.n} ${c.s} gently... (1.5s)`);
+  render();
+  setTimeout(()=>{
+    if(hand.length==0){ handleCheckUp(idx); return; }
+    if(c.n==20){ pendingPick=0; pendingPickType=0; callShape=null; let counts={}; for(let cc of hand) counts[cc.s]=(counts[cc.s]||0)+1; let best='circle',max=0; for(let k in counts){ if(counts[k]>max){max=counts[k]; best=k} } callShape=best; msg((friendNames[idx]||'CPU')+': Give me '+best.toUpperCase()+'!'); nextPlayer(); return; }
+    if(!(powerRules && pendingPick>0 && c.n==pendingPickType)) callShape=null; applySpecial(c,(idx+1)%(mode+1),false);
+  },1500);
+},delay);
+}
+function drawCard(){
+if(isSpectator){ msg('👀 Spectator - Press RESTART'); return; }
+if(isFriendsMode){
+if(currentPlayer!=mySeat){ msg('No be your turn!'); return; }
+if(isHost){ doDraw(); broadcastState(); } else { sendToHost({type:'move',action:'draw',seat:mySeat}); }
+return;
+}
+if(currentPlayer!=0||sharing||pendingWhot){ msg('Wait for your turn!'); return; }
+doDraw();
+}
+function doDraw(){
+if(powerRules && pendingPick>0){ let amt=pendingPickType==2?2:3; pick(0,amt); msg('You take '+amt+' - You tap market yourself ✅'); speak('You take '+amt); pendingPick=0; pendingPickType=0; sPick(); nextPlayer(); return; }
+if(!ensureDeck()){ msg('Market empty - Counting!'); let scores=countAllPoints(); showCountingStepByStep(scores, ()=>{}); let highest=Math.max(...scores.map(s=>s.points)); let outP=scores.find(s=>s.points==highest); eliminated.push(outP.player); if(outP.player==0){ document.getElementById('outBox').style.display='block'; } nextPlayer(); return; }
+my.push(deck.pop()); sPick(); msg('You pick 1 - You tap market yourself ✅'); speak('You pick one'); nextPlayer();
+}
+function sayWhot(){ if(my.length<=2){ saidWhot=true; msg('📢 YOU: I NEED WHOT! 🔥'); speak('I need Whot! I go win!'); beep(900,0.2); } else msg('You still get '+my.length+' cards'); }
+</script></body></html>
